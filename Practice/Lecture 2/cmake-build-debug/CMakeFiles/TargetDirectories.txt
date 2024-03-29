@@ -1,0 +1,3 @@
+D:/Document Ndik/Kuliah/Semester 4/Computer-Graphics/Practice/Lecture 2/cmake-build-debug/CMakeFiles/Lecture_2.dir
+D:/Document Ndik/Kuliah/Semester 4/Computer-Graphics/Practice/Lecture 2/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Document Ndik/Kuliah/Semester 4/Computer-Graphics/Practice/Lecture 2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,334 @@
+// kode dasar untuk semua praktikum grafika komputer
+// adhi prahara. 2018
+
+// deklarasikan semua header disini
+#include <windows.h>
+#include <GL/glut.h>
+
+#include <stdio.h>
+#include <iostream>
+
+int SCREEN_WIDTH = 400;
+int SCREEN_HEIGHT = 400;
+
+// inisialisasi variabel untuk transformasi seperti translasi, rotasi atau scaling
+float angle = 0.0f;					// sudut transformasi kamera
+float posX = 0.0f, rotX =  0.0f;	// posisi kamera di sumbu X
+float posY = 0.0f, rotY =  0.0f;	// posisi kamera di sumbu Y
+float posZ = 5.0f, rotZ = -1.0f;	// posisi kamera di sumbu Z
+
+float objectAngleX = 0.0f;			// sudut tranformasi obyek di sumbu X
+float objectAngleY = 0.0f;			// sudut tranformasi obyek di sumbu Y
+float objectAngleZ = 0.0f;			// sudut tranformasi obyek di sumbu Z
+
+// container untuk membuat tipe data 3D (X, Y, Z)
+struct Vec3{
+    float X; float Y; float Z;
+    Vec3(float x, float y, float z) { X = x; Y = y; Z = z; }
+    //
+    Vec3() { }
+    ~Vec3() { }
+};
+
+// fungsi untuk menggambar garis dengan algoritma DDA bila terhadap X
+void lineDDAX(Vec3 point1, Vec3 point2)
+{
+    // hitung gradient garis m
+    int dY = point2.Y - point1.Y;
+    int dX = point2.X - point1.X;
+    float m = (float)dY / dX;
+    float im = 1.0f/m;
+
+    // mulai menggambar titik-titik
+    glBegin(GL_POINTS);
+    // koordinat titik awal
+    glVertex3f(point1.X, point1.Y, point1.Z);
+    float pX = point1.X, pY = point1.Y, pZ = point1.Z;
+
+    // kenaikan terhadap X
+    for (int i = point1.X; i < point2.X; i++)
+    {
+        pX = pX + 1; // Xn+1 = Xn + 1
+        pY = pY + m; // Yn+1 = Yn + m
+        glVertex3f(pX, pY, pZ);
+    }
+    // koordinat titik akhir
+    glVertex3f(point2.X, point2.Y, point2.Z);
+    glEnd();
+}
+
+// fungsi untuk menggambar garis dengan algoritma DDA bila terhadap Y
+void lineDDAY(Vec3 point1, Vec3 point2)
+{
+    // hitung gradient garis m
+    int dY = point2.Y - point1.Y;
+    int dX = point2.X - point1.X;
+    float m = (float)dY / dX;
+    float im = 1.0f/m;
+
+    // mulai menggambar titik-titik
+    glBegin(GL_POINTS);
+    // koordinat titik awal
+    glVertex3f(point1.X, point1.Y, point1.Z);
+    float pX = point1.X, pY = point1.Y, pZ = point1.Z;
+
+    // kenaikan terhadap Y
+    for (int i = point1.Y; i < point2.Y; i++)
+    {
+        pX = pX + im; // Xn+1 = Xn + 1/m
+        pY = pY + 1; // Yn+1 = Yn + 1
+        glVertex3f(pX, pY, pZ);
+    }
+    // koordinat titik akhir
+    glVertex3f(point2.X, point2.Y, point2.Z);
+    glEnd();
+}
+
+// fungsi untuk menggambar garis dengan algoritma DDA
+void lineDDA(Vec3 point1, Vec3 point2)
+{
+    // hitung selisih panjang
+    int dY = point2.Y - point1.Y;
+    int dX = point2.X - point1.X;
+    // bila deltaY lebih pendek dari deltaX
+    if (abs(dY) < abs(dX))
+    {
+        if (point1.X < point2.X) // bila X1 < X2
+            lineDDAX(point1, point2);
+        else // bila X1 > X2 maka dibalik
+            lineDDAX(point2, point1);
+    }
+    else // bila deltaY lebih panjang dari deltaX
+    {
+        if (point1.Y < point2.Y) // bila Y1 < Y2
+            lineDDAY(point1, point2);
+        else // bila Y1 > Y2 maka dibalik
+            lineDDAY(point2, point1);
+    }
+}
+
+// fungsi untuk menggambar obyek
+void drawObject()
+{
+    glPushMatrix();
+    // operasi transformasi rotasi obyek ke arah kanan-kiri
+    glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f);
+    glPushMatrix();
+    // operasi transformasi rotasi obyek ke arah atas-bawah
+    glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
+
+    // warna kuning
+    glColor3f(1.0f, 1.0f, 0.0f);
+
+    // belah ketupat
+//    - SISI KANAN ATAS -
+    // garis 1
+    Vec3 point1(240,20,0);
+    Vec3 point2(180,80,0);
+
+    // garis 2
+    Vec3 point3(160,100,0);
+    Vec3 point4(100,160,0);
+
+    // garis 3
+    Vec3 point5(80,180,0);
+    Vec3 point6(20,240,0);
+
+    lineDDA(point1, point2);
+    lineDDA(point3, point4);
+    lineDDA(point5, point6);
+
+// SISI KANAN BAWAH
+//melakukan mirror terhadap sumbu x
+    // garis 1
+    Vec3 point7(240,-20,0);
+    Vec3 point8(180,-80,0);
+
+    // garis 2
+    Vec3 point9(160,-100,0);
+    Vec3 point10(100,-160,0);
+
+    // garis 3
+    Vec3 point11(80,-180,0);
+    Vec3 point12(20,-240,0);
+
+    lineDDA(point7, point8);
+    lineDDA(point9, point10);
+    lineDDA(point11, point12);
+
+// SISI KIRI ATAS
+// melakukan mirror terhadap sumbu y
+// garis 1
+    Vec3 point13(-240,20,0);
+    Vec3 point14(-180,80,0);
+
+// garis 2
+    Vec3 point15(-160,100,0);
+    Vec3 point16(-100,160,0);
+
+// garis 3
+    Vec3 point17(-80,180,0);
+    Vec3 point18(-20,240,0);
+
+    lineDDA(point13, point14);
+    lineDDA(point15, point16);
+    lineDDA(point17, point18);
+
+// SISI KIRI BAWAH
+// melakukan mirror terhadap sumbu x dan y
+// garis 1
+    Vec3 point19(-240,-20,0);
+    Vec3 point20(-180,-80,0);
+
+// garis 2
+    Vec3 point21(-160,-100,0);
+    Vec3 point22(-100,-160,0);
+
+// garis 3
+    Vec3 point23(-80,-180,0);
+    Vec3 point24(-20,-240,0);
+
+    lineDDA(point19, point20);
+    lineDDA(point21, point22);
+    lineDDA(point23, point24);
+
+    glPopMatrix();
+    glPopMatrix();
+}
+
+
+// taruh semua obyek yang akan digambar di fungsi display()
+void display()
+{
+    // bersihkan dan reset layar dan buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+
+    // posisikan kamera pandang
+    // dalam hal ini sumbu Y ada diatas dan posisi kamera pandang di (posX, posY, posZ)
+    gluLookAt(posX, posY, posZ, posX + rotX, posY + rotY, posZ + rotZ, 0.0f, 1.0f, 0.0f);
+
+    // panggil fungsi untuk menggambar obyek
+    drawObject();
+
+    // tampilkan obyek ke layar
+    // gunakan glFlush() bila memakai single buffer
+    // gunakan glutSwapBuffers() bila memakai double buffer
+    glutSwapBuffers();
+}
+
+// inisialisasikan variabel, pencahayaan, tekstur dan pengaturan kamera pandang di fungsi init()
+void init(void)
+{
+    // inisialisasi warna latar belakang layar dalam hal ini warna putih (1.0, 1.0, 1.0, 0.0)
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glEnable(GL_DEPTH_TEST);				// mengaktifkan depth buffer
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //gluPerspective(45.0, 1.0, 1.0, 100.0);
+    glOrtho((GLfloat)-SCREEN_WIDTH/2, (GLfloat)SCREEN_WIDTH/2, (GLfloat)-SCREEN_HEIGHT/2, (GLfloat)SCREEN_HEIGHT/2, 1.0, 100.0); // set proyeksi ke perspektif
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    // inisialisasi kamera pandang
+    gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+}
+
+// fungsi ini digunakan bila layar akan diresize (default)
+void reshape(int w, int h)
+{
+    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //gluPerspective(45, (GLfloat)w / (GLfloat)h, 1.0, 100.0);
+    glOrtho((GLfloat)-w/2, (GLfloat)w/2, (GLfloat)-h/2, (GLfloat)h/2, 1.0, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+// fungsi untuk mengatur masukan dari keyboard
+// untuk arah kiri, kanan, atas, bawah, PgUp, dan PgDn
+void keyboard(int key, int x, int y)
+{
+    float fraction = 0.1f;
+
+    switch (key)
+    {
+        // masukkan perintah disini bila tombol kiri ditekan
+        case GLUT_KEY_LEFT:
+            // dalam hal ini perintah rotasi obyek ke kiri sebanyak 1 derajat
+            objectAngleY -= 1.0f;
+            glutPostRedisplay();	// update obyek
+            break;
+            // masukkan perintah disini bila tombol kanan ditekan
+        case GLUT_KEY_RIGHT:
+            // dalam hal ini perintah rotasi obyek ke kanan sebanyak 1 derajat
+            objectAngleY += 1.0f;
+            glutPostRedisplay();	// update obyek
+            break;
+            // masukkan perintah disini bila tombol atas ditekan
+        case GLUT_KEY_UP:
+            // dalam hal ini perintah rotasi obyek ke atas sebanyak 1 derajat
+            objectAngleX -= 1.0f;
+            glutPostRedisplay();	// update obyek
+            break;
+            // masukkan perintah disini bila tombol bawah ditekan
+        case GLUT_KEY_DOWN:
+            // dalam hal ini perintah rotasi obyek ke bawah sebanyak 1 derajat
+            objectAngleX += 1.0f;
+            glutPostRedisplay();	// update obyek
+            break;
+            // zoom in
+        case GLUT_KEY_PAGE_UP:
+            // masukkan perintah disini bila tombol PgUp ditekan
+            posX += rotX * fraction;
+            posZ += rotZ * fraction;
+            glutPostRedisplay();	// update obyek
+            break;
+            // zoom out
+        case GLUT_KEY_PAGE_DOWN:
+            // masukkan perintah disini bila tombol PgDn ditekan
+            posX -= rotX * fraction;
+            posZ -= rotZ * fraction;
+            glutPostRedisplay();	// update obyek
+            break;
+    }
+}
+
+// timer untuk animasi (gunakan bila perlu)
+void timer(int value)
+{
+    glutPostRedisplay();
+    glutTimerFunc(55, timer, 0);
+}
+
+// program utama
+int main(int argc, char** argv)
+{
+    // inisialisasi jendela OpenGL
+    // GLUT_SINGLE berarti memakai single buffer
+    // GLUT_DOUBLE berarti memakai double buffer
+    // GLUT_RGB berarti mode tampilan yang dipakai RGB
+    // GLUT_RGBA berarti mode tampilan yang dipakai RGBA
+    // GLUT_DEPTH berarti memakai depth buffer
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+
+    // set ukuran jendela tampilan
+    glutInitWindowSize(480, 480);		// besarnya jendela dalam piksel dalam hal ini 300x300
+    glutInitWindowPosition(100, 100);	// posisi jendela dilayar komputer dalam piksel
+    // judul jendela (wajib diubah dengan informasi NAMA / NIM - JUDUL PRAKTIKUM masing-masing)
+    glutCreateWindow("Algoritma DDA | M. Farid H.- 2200018401");
+
+    // panggil fungsi init untuk inisialisasi awal
+    init();
+
+    // event handler untuk display, reshape dan keyboard
+    glutDisplayFunc(display);   // display
+    glutReshapeFunc(reshape);   // reshape
+    glutSpecialFunc(keyboard);  // keyboard
+    //glutTimerFunc(0, timer, 0); // aktifkan timer bila perlu
+
+    // looping
+    glutMainLoop();
+
+    return 0;
+}
