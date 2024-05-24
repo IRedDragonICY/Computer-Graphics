@@ -90,7 +90,7 @@ void drawCylinder(float radius, float height, int slices, int stacks)
 	glColor3f(2.0f, 0.0f, 1.0f); // warna merah
 	gluCylinder(cyl, radius, 0.0f, height, slices, stacks);
 	// buat tutup bawah silinder
-	glColor3f(1.0f, 1.0f, 0.0f); // warna kuning
+	glColor3f(2.0f, 0.0f, 1.0f); // warna kuning
 	glTranslatef(0.0f, 0.0f, height);
 //	gluDisk(cyl, 0.0f, radius, slices, stacks);
 	glPopMatrix();
@@ -125,7 +125,7 @@ void drawObject()
 	glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
 
 	// set warna obyek ke warna hijau (0.0f, 1.0f, 0.0f)
-	glColor3f(0.0f, 1.0f, 0.0f);
+	glColor3f(2.0f, 0.0f, 1.0f);
 
 	// bila menggambar obyek harus diawali glBegin(tipe obyek) dan diakhiri dengan glEnd()
 	// kecuali menggunakan fungsi yang sudah ada di GLUT-OpenGL seperti dibawah ini
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(480, 480);		// besarnya jendela dalam piksel dalam hal ini 300x300
 	glutInitWindowPosition(100, 100);	// posisi jendela dilayar komputer dalam piksel
 	// judul jendela (wajib diubah dengan informasi NAMA / NIM - JUDUL PRAKTIKUM masing-masing)
-	glutCreateWindow("RIFAL FEBIYAN / 2100018345 - KODE DASAR PRAKTIKUM GRAFIKA KOMPUTER");
+	glutCreateWindow("Mohammad Farid Hendianto / 2200018401 - KODE DASAR PRAKTIKUM GRAFIKA KOMPUTER");
 	
 	// panggil fungsi init untuk inisialisasi awal
 	init();
