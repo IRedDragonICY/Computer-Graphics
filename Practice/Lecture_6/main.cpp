@@ -84,7 +84,7 @@ void drawCylinder(float radius, float height, int slices, int stacks)
 	// buat tutup atas silinder
 	glTranslatef(0.0f, -height/2, 0.0f);
 	glRotatef(-90, 1.0f, 0.0f, 0.0f);
-//	glColor3f(1.0f, 1.0f, 0.0f); // warna kuning
+	glColor3f(2.0f, 0.0f, 1.0f); // warna kuning
 	gluDisk(cyl, 0.0f, radius, slices, stacks);
 	// buat badan silinder
 	glColor3f(2.0f, 0.0f, 1.0f); // warna merah
@@ -125,7 +125,7 @@ void drawObject()
 	glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
 
 	// set warna obyek ke warna hijau (0.0f, 1.0f, 0.0f)
-	glColor3f(2.0f, 0.0f, 1.0f);
+	glColor3f(0.0f, 1.0f, 0.0f);
 
 	// bila menggambar obyek harus diawali glBegin(tipe obyek) dan diakhiri dengan glEnd()
 	// kecuali menggunakan fungsi yang sudah ada di GLUT-OpenGL seperti dibawah ini
